@@ -99,6 +99,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BiInformationResponse"
+  /v1/internal/usage/bi-spans:
+    get:
+      tags:
+      - System usage
+      summary: Get spans information for BI events
+      description: Get spans information for BI events per user per workspace
+      operationId: getSpansBiInfo
+      responses:
+        "200":
+          description: Spans BiInformationResponse resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BiInformationResponse"
   /v1/internal/usage/workspace-span-counts:
     get:
       tags:
@@ -1064,6 +1078,10 @@ paths:
           type: string
           format: uuid
       - name: sorting
+        in: query
+        schema:
+          type: string
+      - name: filters
         in: query
         schema:
           type: string
@@ -3232,6 +3250,10 @@ paths:
         in: query
         schema:
           type: string
+      - name: sorting
+        in: query
+        schema:
+          type: string
       responses:
         "200":
           description: Trace threads resource
@@ -3368,6 +3390,50 @@ paths:
           type: string
           format: uuid
       - name: experiment_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: workspace_name
+        in: query
+        schema:
+          type: string
+      - name: path
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "303":
+          description: Redirect
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+  /v1/session/redirect/optimizations:
+    get:
+      tags:
+      - Redirect
+      summary: Create optimization redirect url
+      description: Create optimization redirect url
+      operationId: optimizationsRedirect
+      parameters:
+      - name: dataset_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: optimization_id
         in: query
         required: true
         schema:
@@ -4749,6 +4815,12 @@ components:
         last_updated_by:
           type: string
           readOnly: true
+        trace_visibility_mode:
+          type: string
+          readOnly: true
+          enum:
+          - default
+          - hidden
     FeedbackScore:
       required:
       - name
@@ -5037,6 +5109,12 @@ components:
         last_updated_by:
           type: string
           readOnly: true
+        trace_visibility_mode:
+          type: string
+          readOnly: true
+          enum:
+          - default
+          - hidden
       readOnly: true
     FeedbackScore_Compare:
       required:
@@ -5250,6 +5328,12 @@ components:
         last_updated_by:
           type: string
           readOnly: true
+        trace_visibility_mode:
+          type: string
+          readOnly: true
+          enum:
+          - default
+          - hidden
     Column_Public:
       type: object
       properties:
@@ -5412,6 +5496,9 @@ components:
         duration:
           $ref: "#/components/schemas/PercentageValues"
         total_estimated_cost:
+          type: number
+          readOnly: true
+        total_estimated_cost_avg:
           type: number
           readOnly: true
         usage:
@@ -5583,6 +5670,8 @@ components:
         dataset_item_id:
           type: string
           format: uuid
+        evaluate_task_result:
+          $ref: "#/components/schemas/JsonListString"
         trace:
           $ref: "#/components/schemas/Trace"
         spans:
@@ -5813,6 +5902,10 @@ components:
           enum:
           - default
           - hidden
+        llm_span_count:
+          type: integer
+          format: int32
+          readOnly: true
     ErrorInfo_ExperimentItemBulkWriteView:
       required:
       - exception_type
@@ -5833,6 +5926,8 @@ components:
         dataset_item_id:
           type: string
           format: uuid
+        evaluate_task_result:
+          $ref: "#/components/schemas/JsonListString_ExperimentItemBulkWriteView"
         trace:
           $ref: "#/components/schemas/Trace_ExperimentItemBulkWriteView"
         spans:
@@ -6008,6 +6103,8 @@ components:
           format: date-time
         thread_id:
           type: string
+      description: "Please provide either none, only one of evaluate_task_result or\
+        \ trace, but never both"
     Comment_Public:
       required:
       - text
@@ -6102,6 +6199,9 @@ components:
         duration:
           $ref: "#/components/schemas/PercentageValues_Public"
         total_estimated_cost:
+          type: number
+          readOnly: true
+        total_estimated_cost_avg:
           type: number
           readOnly: true
         usage:
@@ -7029,6 +7129,18 @@ components:
           - running
           - completed
           - cancelled
+    ErrorCountWithDeviation:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        deviation:
+          type: integer
+          format: int64
+        deviation_percentage:
+          type: integer
+          format: int64
     Project:
       required:
       - name
@@ -7095,6 +7207,8 @@ components:
           type: integer
           format: int64
           readOnly: true
+        error_count:
+          $ref: "#/components/schemas/ErrorCountWithDeviation"
     Project_Write:
       required:
       - name
@@ -7281,6 +7395,21 @@ components:
         guardrails_failed_count:
           type: integer
           format: int64
+        error_count:
+          $ref: "#/components/schemas/ErrorCountWithDeviation"
+    ErrorCountWithDeviation_Detailed:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        deviation:
+          type: integer
+          format: int64
+        deviation_percentage:
+          type: integer
+          format: int64
+      readOnly: true
     FeedbackScoreAverage_Detailed:
       required:
       - name
@@ -7368,6 +7497,8 @@ components:
           type: integer
           format: int64
           readOnly: true
+        error_count:
+          $ref: "#/components/schemas/ErrorCountWithDeviation_Detailed"
     ErrorMessage_Detailed:
       type: object
       properties:
@@ -8428,6 +8559,10 @@ components:
           enum:
           - default
           - hidden
+        llm_span_count:
+          type: integer
+          format: int32
+          readOnly: true
     TraceThread:
       type: object
       properties:
@@ -8452,6 +8587,13 @@ components:
         number_of_messages:
           type: integer
           format: int64
+        total_estimated_cost:
+          type: number
+        usage:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
         last_updated_at:
           type: string
           format: date-time
@@ -8487,6 +8629,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TraceThread"
+        sortableBy:
+          type: array
+          items:
+            type: string
     TracePage_Public:
       type: object
       properties:

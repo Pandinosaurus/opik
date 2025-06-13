@@ -106,6 +106,8 @@ from .delete_attachments_request_entity_type import DeleteAttachmentsRequestEnti
 from .delete_feedback_score import DeleteFeedbackScore
 from .delete_ids_holder import DeleteIdsHolder
 from .delta import Delta
+from .error_count_with_deviation import ErrorCountWithDeviation
+from .error_count_with_deviation_detailed import ErrorCountWithDeviationDetailed
 from .error_info import ErrorInfo
 from .error_info_experiment_item_bulk_write_view import ErrorInfoExperimentItemBulkWriteView
 from .error_info_public import ErrorInfoPublic
@@ -122,7 +124,10 @@ from .experiment_item_bulk_record_experiment_item_bulk_write_view import (
 )
 from .experiment_item_bulk_upload import ExperimentItemBulkUpload
 from .experiment_item_compare import ExperimentItemCompare
+from .experiment_item_compare_trace_visibility_mode import ExperimentItemCompareTraceVisibilityMode
 from .experiment_item_public import ExperimentItemPublic
+from .experiment_item_public_trace_visibility_mode import ExperimentItemPublicTraceVisibilityMode
+from .experiment_item_trace_visibility_mode import ExperimentItemTraceVisibilityMode
 from .experiment_page_public import ExperimentPagePublic
 from .experiment_public import ExperimentPublic
 from .experiment_public_type import ExperimentPublicType
@@ -390,6 +395,8 @@ __all__ = [
     "DeleteFeedbackScore",
     "DeleteIdsHolder",
     "Delta",
+    "ErrorCountWithDeviation",
+    "ErrorCountWithDeviationDetailed",
     "ErrorInfo",
     "ErrorInfoExperimentItemBulkWriteView",
     "ErrorInfoPublic",
@@ -404,7 +411,10 @@ __all__ = [
     "ExperimentItemBulkRecordExperimentItemBulkWriteView",
     "ExperimentItemBulkUpload",
     "ExperimentItemCompare",
+    "ExperimentItemCompareTraceVisibilityMode",
     "ExperimentItemPublic",
+    "ExperimentItemPublicTraceVisibilityMode",
+    "ExperimentItemTraceVisibilityMode",
     "ExperimentPagePublic",
     "ExperimentPublic",
     "ExperimentPublicType",
